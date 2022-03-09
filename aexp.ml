@@ -64,3 +64,44 @@ Printf.printf "%d\n" (ainterp q2_3_2);;
 Printf.printf "%d\n" (ainterp q2_3_3);;
 Printf.printf "%d\n" (ainterp q2_3_4);;
 Printf.printf "%d\n\n" (ainterp q2_3_5);;
+
+let rec asubst v expori expfin : aexp =
+match expfin with 
+      |Add(e1,e2) -> Add(asubst v expori e1,asubst v expori e2 )
+      |Mult(e1,e2) -> Mult(asubst v expori e1,asubst v expori e2 )
+      |Sub(e1,e2) -> Sub(asubst v expori e1,asubst v expori e2 )
+      |Int(i) -> Int(i)
+      |Var(s) -> if(s=v) then expori else Var(s) ;;
+;;
+
+
+Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_1)));;
+Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_2_1)));;
+Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_2_2)));;
+Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_2_3)));;
+Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_1)));;
+Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_2)));;
+Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_3)));;
+Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_4)));;
+Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_5)));;
+
+
+type bexp = And of bexp*bexp
+	    | Exp of aexp
+	    | Or of bexp*bexp 
+            | Neg of bexp
+	    | Eg of bexp * bexp
+	    | Infeg of bexp*bexp
+	    | Vrai
+	    | Faux
+;; 
+
+let q22_1= Vrai;;
+let q22_2_1 = And(Vrai,Faux);;
+let q22_2_2 = Neg(Vrai);;
+let q22_2_3 = Or(Vrai,Faux);;
+let q22_3_1 = Eg(Exp(Int(2)),Exp(Int(4)));;
+let q22_3_2 = Eg(Exp(Add(Int(3),Int(5))),Exp(Mult(Int(2),Int(4))));;
+let q22_3_3 = Eg(Exp(Mult(Int(2),Var("x"))),Exp(Add(Var("y"),Int(1))));;
+let q22_4_1 = Infeg(Exp(Int(5)),Exp(Int(7)));;
+let q22_4_2 = And(Infeg(Exp(Add(Int(8),Int(9))),Exp(Mult(Int(4),Int(5)))),Infeg(Exp(Add(Int(3),Var("x"))),Exp(Mult(Int(4),Var("y")))));;
