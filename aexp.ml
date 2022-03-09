@@ -46,24 +46,24 @@ Printf.printf "%s\n\n" (aexp_to_string q2_3_5);;
 
 
 
-let rec ainterp(e : aexp) : int =
+let rec ainterp(f,e) : int =
    match e with
-      |Add(e1,e2) -> ainterp(e1) + ainterp(e2) 
-      |Mult(e1,e2) -> ainterp(e1) * ainterp(e2)
-      |Sub(e1,e2) -> ainterp(e1) - ainterp(e2)
+      |Add(e1,e2) -> ainterp(f,e1) + ainterp(f,e2) 
+      |Mult(e1,e2) -> ainterp(f,e1) * ainterp(f,e2)
+      |Sub(e1,e2) -> ainterp(f,e1) - ainterp(f,e2)
       |Int(i) -> i
       |Var(s) -> f s;;
 ;;
 
-Printf.printf "%d\n" (ainterp q2_1);;
-Printf.printf "%d\n" (ainterp q2_2_1);;
-Printf.printf "%d\n" (ainterp q2_2_2);;
-Printf.printf "%d\n" (ainterp q2_2_3);;
-Printf.printf "%d\n" (ainterp q2_3_1);;
-Printf.printf "%d\n" (ainterp q2_3_2);;
-Printf.printf "%d\n" (ainterp q2_3_3);;
-Printf.printf "%d\n" (ainterp q2_3_4);;
-Printf.printf "%d\n\n" (ainterp q2_3_5);;
+Printf.printf "%d\n" (ainterp (f,q2_1));;
+Printf.printf "%d\n" (ainterp (f,q2_2_1));;
+Printf.printf "%d\n" (ainterp (f,q2_2_2));;
+Printf.printf "%d\n" (ainterp (f,q2_2_3));;
+Printf.printf "%d\n" (ainterp (f,q2_3_1));;
+Printf.printf "%d\n" (ainterp (f,q2_3_2));;
+Printf.printf "%d\n" (ainterp (f,q2_3_3));;
+Printf.printf "%d\n" (ainterp (f,q2_3_4));;
+Printf.printf "%d\n\n" (ainterp (f,q2_3_5));;
 
 let rec asubst v expori expfin : aexp =
 match expfin with 
@@ -83,15 +83,14 @@ Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var(
 Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_2)));;
 Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_3)));;
 Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_4)));;
-Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_5)));;
+Printf.printf "%s\n\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_5)));;
 
 
 type bexp = And of bexp*bexp
-	    | Exp of aexp
 	    | Or of bexp*bexp 
             | Neg of bexp
-	    | Eg of bexp * bexp
-	    | Infeg of bexp*bexp
+	    | Eg of aexp * aexp
+	    | Infeg of aexp*aexp
 	    | Vrai
 	    | Faux
 ;; 
@@ -100,8 +99,58 @@ let q22_1= Vrai;;
 let q22_2_1 = And(Vrai,Faux);;
 let q22_2_2 = Neg(Vrai);;
 let q22_2_3 = Or(Vrai,Faux);;
-let q22_3_1 = Eg(Exp(Int(2)),Exp(Int(4)));;
-let q22_3_2 = Eg(Exp(Add(Int(3),Int(5))),Exp(Mult(Int(2),Int(4))));;
-let q22_3_3 = Eg(Exp(Mult(Int(2),Var("x"))),Exp(Add(Var("y"),Int(1))));;
-let q22_4_1 = Infeg(Exp(Int(5)),Exp(Int(7)));;
-let q22_4_2 = And(Infeg(Exp(Add(Int(8),Int(9))),Exp(Mult(Int(4),Int(5)))),Infeg(Exp(Add(Int(3),Var("x"))),Exp(Mult(Int(4),Var("y")))));;
+let q22_3_1 = Eg(Int(2),Int(4));;
+let q22_3_2 = Eg(Add(Int(3),Int(5)),Mult(Int(2),Int(4)));;
+let q22_3_3 = Eg(Mult(Int(2),Var("x")),Add(Var("y"),Int(1)));;
+let q22_4_1 = Infeg(Int(5),Int(7));;
+let q22_4_2 = And(Infeg(Add(Int(8),Int(9)),Mult(Int(4),Int(5))),Infeg(Add(Int(3),Var("x")),Mult(Int(4),Var("y"))));;
+
+let rec bexp_to_string(e : bexp) : string =
+   match e with
+      |And(e1,e2) -> "( " ^ bexp_to_string(e1) ^ " et " ^ bexp_to_string(e2) ^ " )"      
+      |Or(e1,e2) -> "( " ^ bexp_to_string(e1) ^ " ou " ^ bexp_to_string(e2) ^ " )"     
+      |Eg(e1,e2) -> "( " ^ aexp_to_string(e1) ^  " = " ^ aexp_to_string(e2) ^ " )"     
+      |Infeg(e1,e2) ->  "( " ^ aexp_to_string(e1) ^  " <= " ^ aexp_to_string(e2) ^ " )"
+      |Vrai -> "vrai"
+      |Faux -> "faux"
+      |Neg(e1) -> "non ( " ^ bexp_to_string(e1) ^ " )"
+;;
+
+Printf.printf "%s\n" (bexp_to_string q22_1);;
+Printf.printf "%s\n" (bexp_to_string q22_2_1);;
+Printf.printf "%s\n" (bexp_to_string q22_2_2);;
+Printf.printf "%s\n" (bexp_to_string q22_2_3);;
+Printf.printf "%s\n" (bexp_to_string q22_3_1);;
+Printf.printf "%s\n" (bexp_to_string q22_3_2);;
+Printf.printf "%s\n" (bexp_to_string q22_3_3);;
+Printf.printf "%s\n" (bexp_to_string q22_4_1);;
+Printf.printf "%s\n" (bexp_to_string q22_4_2);;
+
+
+
+let listVarValBin: valuation = [("x",7);("y",3)];;
+let fbin s : int =
+        let (_, v) = functionFind listVarValBin s in
+        v
+;;
+
+let rec binterp(e : bexp) : bool =
+   match e with
+      |And(e1,e2) -> if(binterp(e1)=true && binterp(e2)=true) then true else false
+      |Or(e1,e2) -> if(binterp(e1)=true || binterp(e2)=true) then true else false
+      |Eg(e1,e2) -> if(ainterp(fbin,e1)=ainterp(fbin,e2)) then true else false
+      |Infeg(e1,e2) ->  if(ainterp(fbin,e1)<=ainterp(fbin,e2)) then true else false
+      |Vrai -> true
+      |Faux -> false
+      |Neg(e1) -> not(binterp(e1))
+;;
+
+Printf.printf "%B\n" (binterp (q22_1));;
+Printf.printf "%B\n" (binterp (q22_2_1));;
+Printf.printf "%B\n" (binterp (q22_2_2));;
+Printf.printf "%B\n" (binterp (q22_2_3));;
+Printf.printf "%B\n" (binterp (q22_3_1));;
+Printf.printf "%B\n" (binterp (q22_3_2));;
+Printf.printf "%B\n" (binterp (q22_3_3));;
+Printf.printf "%B\n" (binterp (q22_4_1));;
+Printf.printf "%B\n\n" (binterp (q22_4_2));;
