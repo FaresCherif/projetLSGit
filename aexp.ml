@@ -154,3 +154,45 @@ Printf.printf "%B\n" (binterp (q22_3_2));;
 Printf.printf "%B\n" (binterp (q22_3_3));;
 Printf.printf "%B\n" (binterp (q22_4_1));;
 Printf.printf "%B\n\n" (binterp (q22_4_2));;
+
+
+type prog = Repeat of aexp*prog
+|Skip
+|Seq of prog*prog
+| Affect of string*aexp
+|Cond of bexp*prog*prog
+;;
+
+
+
+let x = ref(2);;
+Printf.printf "%d" !x;;
+x := 3;;
+Printf.printf "%d" !x;;
+let y = 4;;
+Printf.printf "%d" !x;;
+x := y;;
+
+Printf.printf "%d\n" !x;;
+
+let q23_1= Affect("x",Int(7));;
+let q23_2_1 = Affect("z",Add(Int(3),Int(4)));;
+let q23_2_2 = Affect("x",Mult(Int(2),Var("x")));;
+let q23_3_1 = Seq(Affect("n",Int(3)),Cond(Infeg(Var("n"),Int(4)),Affect("n",Add(Mult(Int(2),Var("n")),Int(3))),Affect("n",Add(Var("n"),Int(1)))));;
+let q23_4_1 = Repeat(Int(10),Affect("x",Add(Var("x"),Int(1))));;
+
+
+let rec prog_to_string(e : prog) : string =
+   match e with
+      |Affect(e1,e2) -> e1 ^ " := " ^ aexp_to_string(e2)      
+      |Repeat(e1,e2) -> "repeat " ^ aexp_to_string(e1) ^ " do " ^ prog_to_string(e2) ^ " od\n"     
+      |Skip -> ""
+      |Seq(e1,e2) -> prog_to_string(e1) ^  " ;" ^ prog_to_string(e2)
+      |Cond(e1,e2,e3) -> "if " ^ bexp_to_string(e1) ^ " then " ^ prog_to_string(e2) ^ " else " ^ prog_to_string(e3)
+;;
+
+Printf.printf "%s\n" (prog_to_string (q23_1));;
+Printf.printf "%s\n" (prog_to_string (q23_2_1));;
+Printf.printf "%s\n" (prog_to_string (q23_2_2));;
+Printf.printf "%s\n" (prog_to_string (q23_3_1));;
+Printf.printf "%s\n" (prog_to_string (q23_4_1));;
