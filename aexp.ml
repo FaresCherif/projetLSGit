@@ -196,3 +196,14 @@ Printf.printf "%s\n" (prog_to_string (q23_2_1));;
 Printf.printf "%s\n" (prog_to_string (q23_2_2));;
 Printf.printf "%s\n" (prog_to_string (q23_3_1));;
 Printf.printf "%s\n" (prog_to_string (q23_4_1));;
+
+
+let rec selfcompose(n : int) =
+   if(n<=0) then 
+      Printf.printf "fin"
+   else (
+      Printf.printf "dedans %d"n;
+      selfcompose(n-1))
+;;
+
+selfcompose(2);;
