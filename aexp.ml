@@ -166,7 +166,7 @@ type prog = Repeat of aexp*prog
 ;;
 
 
-
+(**
 let x = ref(2);;
 Printf.printf "%d" !x;;
 x := 3;;
@@ -176,6 +176,7 @@ Printf.printf "%d" !x;;
 x := y;;
 
 Printf.printf "%d\n" !x;;
+*)
 
 let q23_1= Affect("x",Int(7));;
 let q23_2_1 = Affect("z",Add(Int(3),Int(4)));;
@@ -200,57 +201,65 @@ Printf.printf "%s\n" (prog_to_string (q23_3_1));;
 Printf.printf "%s\n" (prog_to_string (q23_4_1));;
 
 
-let rec selfcompose(f, nb, n) =
-   if(nb<=0) then 
-      n
-   else (
-      f(selfcompose(f,nb-1,n)))
-;;
-
-let func x = x + 2;;
-
-Printf.printf "%d\n" (selfcompose(func,10,0));;
-
-let listVarValq6: valuation = [("x",5);("y",9)];;
-let fprog s : int =
-        let (_, v) = functionFind listVarValq6 s in
-        v
-;;
-
 let q6= Affect("x",Int(7));;
+
 
 type valuationref = (string * int ref) list;;
 
 
-let listVarValq6: valuationref = [("x",ref 5);("y",ref 9);("z",ref 7)];;
-let fprog s : int ref =
+let listVarValq6: valuationref = [("x",ref 0);("y",ref 9);("z",ref 7)];;
+let fprog s : int =
         let (_, v) = functionFind listVarValq6 s in
-        v
+        !v
 ;;
 
-let fprogc(s, n)=
+let fprogc s n=
         let (_, v) = functionFind listVarValq6 s in
         v:=n
 ;;
 
-Printf.printf "%d\n" !(fprog("z"));;
-fprogc("z",4);;
-Printf.printf "%d\n" !(fprog("z"));;
 
-(**let rec exec(prog,fprog) =
-   match prog with
-      |Affect(e1,e2) -> fprogc(e1,ainterp(e2))      
-      |Repeat(e1,e2) -> selfcompose(f,e1,e2)    
-      |Skip -> _
-      |Seq(e1,e2) -> exec(e1,fprog) (**exec(e2,fprog)*)
-      |Cond(e1,e2,e3) -> if binterp(e1) then (exec(e2,fprog)) else (exec(e3,fprog)) 
-;;*)
 
-let rec fac(n,temp) =
-   if(n<=0) then
-      temp
-   else (
-      fac(n-1,temp*n))
+let func x = x + 2;;
+
+
+
+
+let selfcompose func n =
+
+  if n < 0 then failwith "Selfcompose can t work with n negative"
+  else 
+  let compose func1 func2 x =
+    func1 (func2 x)
+  in
+  let rec compose_rec func n =
+    if n = 0
+    then (
+      fun x -> x
+    )
+    else(
+     compose func ( compose_rec func (n-1) )
+    )
+  in
+  compose_rec func n
 ;;
 
-Printf.printf "%d\n" (fac(5,1));;
+
+let rec exec(prog,fprog) =
+   match prog with
+      |Affect(e1,e2) -> fprogc e1 (ainterp(fprog,e2)); ""      
+      |Repeat(e1,e2) -> "" (**selfcompose(f,e1,e2)*)    
+      |Skip -> ""
+      |Seq(e1,e2) -> exec(e1,fprog) (**exec(e2,fprog)*) ; ""
+      |Cond(e1,e2,e3) -> if binterp(e1) then (exec(e2,fprog)) else (exec(e3,fprog)); "" 
+;;
+Printf.printf "%d\n"(selfcompose func 5 (1));;
+
+
+
+Printf.printf "%d\n" (fprog("x"));;
+
+exec(q23_1,fprog);;
+
+Printf.printf "%d\n" (fprog("x"));;
+
