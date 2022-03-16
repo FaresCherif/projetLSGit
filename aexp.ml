@@ -161,7 +161,7 @@ Printf.printf "%B\n\n" (binterp (q22_4_2));;
 type prog = Repeat of aexp*prog
 |Skip
 |Seq of prog*prog
-| Affect of string*aexp
+|Affect of string*aexp
 |Cond of bexp*prog*prog
 ;;
 
@@ -223,8 +223,6 @@ let fprogc s n=
 let func x = x + 2;;
 
 
-
-
 let selfcompose func n =
 
   if n < 0 then failwith "Selfcompose can t work with n negative"
@@ -250,7 +248,7 @@ let rec exec(prog,fprog) =
       |Affect(e1,e2) -> fprogc e1 (ainterp(fprog,e2)); ""      
       |Repeat(e1,e2) -> "" (**selfcompose(f,e1,e2)*)    
       |Skip -> ""
-      |Seq(e1,e2) -> exec(e1,fprog) (**exec(e2,fprog)*) ; ""
+      |Seq(e1,e2) -> exec(e1,fprog); exec(e2,fprog) ; ""
       |Cond(e1,e2,e3) -> if binterp(e1) then (exec(e2,fprog)) else (exec(e3,fprog)); "" 
 ;;
 Printf.printf "%d\n"(selfcompose func 5 (1));;
@@ -263,3 +261,35 @@ exec(q23_1,fprog);;
 
 Printf.printf "%d\n" (fprog("x"));;
 
+
+let qtest = Cond(Infeg(Var("x"),Int(9)),Affect("x",Int(42)),Affect("x",Add(Var("n"),Int(1))));;
+let qtest2 = Seq(Affect("x",Int(7)),Cond(Eg(Var("x"),Int(7)),Affect("x",Int(42)),Affect("x",Add(Var("n"),Int(1)))));;
+
+exec(qtest,fprog);;
+
+Printf.printf "%d\n" (fprog("x"));;
+
+exec(qtest2,fprog);;
+
+Printf.printf "%d\n" (fprog("x"));;
+
+
+type tprop = Vrai
+|Faux
+|And of bexp*bexp 
+|Or of bexp*bexp 
+|Implique of bexp*bexp
+|Neg of bexp
+|Eg of aexp * aexp
+|Neg of aexp * aexp
+;;
+
+
+type bexp = And of bexp*bexp
+       | Or of bexp*bexp 
+            | Neg of bexp
+       | Eg of aexp * aexp
+       | Infeg of aexp*aexp
+       | Vrai
+       | Faux
+;; 
