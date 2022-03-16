@@ -1,3 +1,5 @@
+(**ocamlopt -o aexp aexp.ml*)
+
 type aexp = Int of int
 	     | Var of string
              | Add of aexp * aexp
@@ -198,12 +200,57 @@ Printf.printf "%s\n" (prog_to_string (q23_3_1));;
 Printf.printf "%s\n" (prog_to_string (q23_4_1));;
 
 
-let rec selfcompose(n : int) =
-   if(n<=0) then 
-      Printf.printf "fin"
+let rec selfcompose(f, nb, n) =
+   if(nb<=0) then 
+      n
    else (
-      Printf.printf "dedans %d"n;
-      selfcompose(n-1))
+      f(selfcompose(f,nb-1,n)))
 ;;
 
-selfcompose(2);;
+let func x = x + 2;;
+
+Printf.printf "%d\n" (selfcompose(func,10,0));;
+
+let listVarValq6: valuation = [("x",5);("y",9)];;
+let fprog s : int =
+        let (_, v) = functionFind listVarValq6 s in
+        v
+;;
+
+let q6= Affect("x",Int(7));;
+
+type valuationref = (string * int ref) list;;
+
+
+let listVarValq6: valuationref = [("x",ref 5);("y",ref 9);("z",ref 7)];;
+let fprog s : int ref =
+        let (_, v) = functionFind listVarValq6 s in
+        v
+;;
+
+let fprogc(s, n)=
+        let (_, v) = functionFind listVarValq6 s in
+        v:=n
+;;
+
+Printf.printf "%d\n" !(fprog("z"));;
+fprogc("z",4);;
+Printf.printf "%d\n" !(fprog("z"));;
+
+(**let rec exec(prog,fprog) =
+   match prog with
+      |Affect(e1,e2) -> fprogc(e1,ainterp(e2))      
+      |Repeat(e1,e2) -> selfcompose(f,e1,e2)    
+      |Skip -> _
+      |Seq(e1,e2) -> exec(e1,fprog) (**exec(e2,fprog)*)
+      |Cond(e1,e2,e3) -> if binterp(e1) then (exec(e2,fprog)) else (exec(e3,fprog)) 
+;;*)
+
+let rec fac(n,temp) =
+   if(n<=0) then
+      temp
+   else (
+      fac(n-1,temp*n))
+;;
+
+Printf.printf "%d\n" (fac(5,1));;
