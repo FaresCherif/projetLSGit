@@ -226,7 +226,12 @@ let rec exec commande valuation = match commande with
 
 let x=exec q23_1 listVarValBin;;
 Printf.printf "%d\n" (fonctionVar "x" x);;
-
+(**
+Printf.printf "%s\n" (exec (q23_2_1));;
+Printf.printf "%s\n" (exec (q23_2_2));;
+Printf.printf "%s\n" (exec (q23_3_1));;
+Printf.printf "%s\n" (exec (q23_4_1));;
+*)
 
 let listRefactor = [];;
 let funRefac num= Seq(Affect("x",Int(num)),Seq(Affect("y",Sub(Var("x"),Int(1))),Repeat(Sub(Var("y"),Int(1)),Seq(Affect("x",Mult(Var("x"),Var("y"))),Affect(("y"),Sub(Var("y"),Int(1)))))));;
@@ -236,35 +241,82 @@ Printf.printf "factoriel 5 : %d\n" (factoriel(5));;
 let listFibonnacci = [];;
 let funFibbonacci num = Seq(Seq(Seq(Affect("x",Int(1)),Affect("y",Int(1))),Affect("z",Int(2))),Repeat(Int(num-3),Seq(Affect("x",Var("y")),Seq(Affect("y",Var("z")),Affect("z",Add(Var("x"),Var("y")))))));;
 let fibbonacci num=if(num>3) then fonctionVar "z" (exec (funFibbonacci(num)) listFibonnacci) else if(num=3)then 2 else if(num=2)then 1 else if(num=1) then 1 else  failwith "factoriel d'un nombre inferieur ou egal a 1 impossible";;
-Printf.printf "fibbonacci 8 : %d\n" (fibbonacci(8));;
+Printf.printf "fibbonacci 8 : %d\n\n" (fibbonacci(8));;
 
 
-(**
-Printf.printf "%s\n" (exec (q23_2_1));;
-Printf.printf "%s\n" (exec (q23_2_2));;
-Printf.printf "%s\n" (exec (q23_3_1));;
-Printf.printf "%s\n" (exec (q23_4_1));;
-*)
 
-(**
+
+
 type tprop = Vrai
 |Faux
-|And of bexp*bexp 
-|Or of bexp*bexp 
-|Implique of bexp*bexp
-|Neg of bexp
+|And of tprop*tprop 
+|Or of tprop*tprop 
+|Implique of tprop*tprop
+|Neg of tprop
 |Eg of aexp * aexp
-|Neg of aexp * aexp
+|Infeg of aexp * aexp
 ;;
 
+let q24_1 = Vrai;;
+let q24_2_1= And(Vrai,Faux);;
+let q24_2_2=Neg(Vrai);;
+let q24_2_3=Or(Vrai,Faux);;
+let q24_2_4=Implique(Faux,Or(Vrai,Faux));;
+let q24_3_1=Eg(Int(2),Int(4));;
+let q24_3_2=Eg(Add(Int(3),Int(5)),Mult(Int(2),Int(4)));;
+let q24_3_3=Eg(Mult(Int(2),Var("x")),Add(Var("y"),Int(1)));;
+let q24_4_1=Infeg(Add(Int(3),Var("x")),Mult(Int(4),Var("y")));;
+let q24_4_2=And(Infeg(Int(5),Int(7)),Infeg(Add(Int(8),Int(9)),Mult(Int(4),Int(5))));;
+let q24_5=Implique(Eg(Var("x"),Int(1)),Infeg(Var("y"),Int(0)));;
 
-type bexp = And of bexp*bexp
-       | Or of bexp*bexp 
-            | Neg of bexp
-       | Eg of aexp * aexp
-       | Infeg of aexp*aexp
-       | Vrai
-       | Faux
-;; 
 
-*)
+let rec prop_to_string(e : tprop) : string =
+   match e with
+      |And(e1,e2) -> "( " ^ prop_to_string(e1) ^ " et " ^ prop_to_string(e2) ^ " )"      
+      |Or(e1,e2) -> "( " ^ prop_to_string(e1) ^ " ou " ^ prop_to_string(e2) ^ " )"     
+      |Eg(e1,e2) -> "( " ^ aexp_to_string(e1) ^  " = " ^ aexp_to_string(e2) ^ " )"     
+      |Infeg(e1,e2) ->  "( " ^ aexp_to_string(e1) ^  " <= " ^ aexp_to_string(e2) ^ " )"
+      |Vrai -> "vrai"
+      |Faux -> "faux"
+      |Neg(e1) -> "non ( " ^ prop_to_string(e1) ^ " )"
+      |Implique(e1,e2)->"( " ^prop_to_string(e1)^ " -> "^ prop_to_string(e2) ^ " )"
+;;
+
+Printf.printf "%s\n" (prop_to_string q24_1);;
+Printf.printf "%s\n" (prop_to_string q24_2_1);;
+Printf.printf "%s\n" (prop_to_string q24_2_2);;
+Printf.printf "%s\n" (prop_to_string q24_2_3);;
+Printf.printf "%s\n" (prop_to_string q24_2_4);;
+Printf.printf "%s\n" (prop_to_string q24_3_1);;
+Printf.printf "%s\n" (prop_to_string q24_3_2);;
+Printf.printf "%s\n" (prop_to_string q24_3_3);;
+Printf.printf "%s\n" (prop_to_string q24_4_1);;
+Printf.printf "%s\n" (prop_to_string q24_4_2);;
+Printf.printf "%s\n\n" (prop_to_string q24_5);;
+
+
+let rec pinterp(e,valuation) : bool =
+   match e with
+      |And(e1,e2) -> if(pinterp(e1,valuation)=true && pinterp(e2,valuation)=true) then true else false
+      |Or(e1,e2) -> if(pinterp(e1,valuation)=true || pinterp(e2,valuation)=true) then true else false
+      |Eg(e1,e2) -> if(ainterp(e1,valuation)=ainterp(e2,valuation)) then true else false
+      |Infeg(e1,e2) ->  if(ainterp(e1,valuation)<=ainterp(e2,valuation)) then true else false
+      |Vrai -> true
+      |Faux -> false
+      |Neg(e1) -> not(pinterp(e1,valuation))
+      |Implique(e1,e2) -> pinterp(Or(Neg(e1),e2),valuation)
+;;
+
+let listVarValBin = [{ nom = "x"; valeur = 7 }; { nom = "y"; valeur = 3 }];;
+
+Printf.printf "%B\n" (pinterp(q24_1,listVarValBin));;
+Printf.printf "%B\n" (pinterp(q24_2_1,listVarValBin));;
+Printf.printf "%B\n" (pinterp(q24_2_2,listVarValBin));;
+Printf.printf "%B\n" (pinterp(q24_2_3,listVarValBin));;
+Printf.printf "%B\n" (pinterp(q24_2_4,listVarValBin));;
+Printf.printf "%B\n" (pinterp(q24_3_1,listVarValBin));;
+Printf.printf "%B\n" (pinterp(q24_3_2,listVarValBin));;
+Printf.printf "%B\n" (pinterp(q24_3_3,listVarValBin));;
+Printf.printf "%B\n" (pinterp(q24_4_1,listVarValBin));;
+Printf.printf "%B\n" (pinterp(q24_4_2,listVarValBin));;
+Printf.printf "%B\n\n" (pinterp(q24_5,listVarValBin));;
