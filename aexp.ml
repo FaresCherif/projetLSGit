@@ -320,3 +320,31 @@ Printf.printf "%B\n" (pinterp(q24_3_3,listVarValBin));;
 Printf.printf "%B\n" (pinterp(q24_4_1,listVarValBin));;
 Printf.printf "%B\n" (pinterp(q24_4_2,listVarValBin));;
 Printf.printf "%B\n\n" (pinterp(q24_5,listVarValBin));;
+
+
+let rec psubst v expori expfin : tprop =
+match expfin with 
+      |And(e1,e2) -> And(psubst v expori e1,psubst v expori e2 )
+      |Or(e1,e2) -> Or(psubst v expori e1,psubst v expori e2 )
+      |Eg(e1,e2) -> Eg(asubst v expori e1,asubst v expori e2 )
+      |Infeg(e1,e2) -> Infeg(asubst v expori e1,asubst v expori e2)
+      |Vrai -> Vrai
+      |Faux -> Faux
+      |Neg(e1) -> Neg(psubst v expori e1)
+      |Implique(e1,e2) -> Implique(psubst v expori e1,psubst v expori e2)
+;;
+
+
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_1)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_2_1)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_2_2)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_2_3)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_2_4)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_3_1)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_3_2)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_3_3)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_4_1)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_4_2)));;
+Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_5)));;
+
+
