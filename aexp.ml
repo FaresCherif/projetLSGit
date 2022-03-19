@@ -234,13 +234,13 @@ Printf.printf "%s\n" (exec (q23_4_1));;
 *)
 
 let listRefactor = [];;
-let funRefac num= Seq(Affect("x",Int(num)),Seq(Affect("y",Sub(Var("x"),Int(1))),Repeat(Sub(Var("y"),Int(1)),Seq(Affect("x",Mult(Var("x"),Var("y"))),Affect(("y"),Sub(Var("y"),Int(1)))))));;
-let factoriel num=if(num>1) then fonctionVar "x" (exec (funRefac(num)) listRefactor) else failwith "factoriel d'un nombre inferieur ou egal a 1 impossible";;
+let funRefac num= Cond(Infeg(Int(2),Int(num)),Seq(Affect("x",Int(num)),Seq(Affect("y",Sub(Var("x"),Int(1))),Repeat(Sub(Var("y"),Int(1)),Seq(Affect("x",Mult(Var("x"),Var("y"))),Affect(("y"),Sub(Var("y"),Int(1))))))),Affect("x",Int(1)));;
+let factoriel num=fonctionVar "x" (exec (funRefac(num)) listRefactor);;
 Printf.printf "factoriel 5 : %d\n" (factoriel(5));;
 
 let listFibonnacci = [];;
-let funFibbonacci num = Seq(Seq(Seq(Affect("x",Int(1)),Affect("y",Int(1))),Affect("z",Int(2))),Repeat(Int(num-3),Seq(Affect("x",Var("y")),Seq(Affect("y",Var("z")),Affect("z",Add(Var("x"),Var("y")))))));;
-let fibbonacci num=if(num>3) then fonctionVar "z" (exec (funFibbonacci(num)) listFibonnacci) else if(num=3)then 2 else if(num=2)then 1 else if(num=1) then 1 else  failwith "factoriel d'un nombre inferieur ou egal a 1 impossible";;
+let funFibbonacci num =Cond(Infeg(Int(3),Int(num)),Seq(Seq(Seq(Affect("x",Int(1)),Affect("y",Int(1))),Affect("z",Int(2))),Repeat(Int(num-3),Seq(Affect("x",Var("y")),Seq(Affect("y",Var("z")),Affect("z",Add(Var("x"),Var("y"))))))), Cond(Eg(Int(num),Int(3)),Affect("z",Int(2)),Affect("z",Int(1))));;
+let fibbonacci num=fonctionVar "z" (exec (funFibbonacci(num)) listFibonnacci);;
 Printf.printf "fibbonacci 8 : %d\n\n" (fibbonacci(8));;
 
 
@@ -345,6 +345,24 @@ Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubs
 Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_3_3)));;
 Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_4_1)));;
 Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_4_2)));;
-Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_5)));;
+Printf.printf "%s\n\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_5)));;
+
+
+
+type hoare_triple = { pre : tprop;exp : prog; post : tprop};;
+
+let q94_1 = {pre = Eg(Var("x"),Int(2));exp=Skip;post=Eg(Var("x"),Int(2))};;
+let q94_2 = {pre=Eg(Var("x"),Int(2));exp=Affect("x",Int(3));post=Infeg(Var("x"),Int(3))};;
+let q94_3 = {pre=Vrai;exp=Cond(Infeg(Var("x"),Int(0)),Affect("r",Sub(Int(0),Var("x"))),Affect("r",Var("x")));post=Infeg(Int(0),Var("r"))};;
+let q94_4 valuation= {pre=And(Eg(Var("in"),Int(5)),Eg(Var("out"),Int(1)));exp=Seq(Affect("out",Int(factoriel(fonctionVar "in" valuation))),Affect("in",Sub(Int(factoriel(fonctionVar "out" valuation)),Int(1))));post=And(Eg(Var("in"),Int(0)),Eg(Var("out"),Int(120)))};;
+
+
+let htvalid_test exp valuation : bool= if pinterp(exp.pre,valuation) then (if(pinterp(exp.post,(exec exp.exp valuation))) then true else false ) else false;;
+let listVarHoare = [{ nom = "x"; valeur = 2 };{nom="r";valeur=5};{nom="in";valeur=5};{nom="out";valeur=1}];;
+
+Printf.printf "%B\n" (htvalid_test q94_1 listVarHoare);;
+Printf.printf "%B\n" (htvalid_test q94_2 listVarHoare);;
+Printf.printf "%B\n" (htvalid_test q94_3 listVarHoare);;
+Printf.printf "%B\n\n" (htvalid_test (q94_4 listVarHoare) listVarHoare);;
 
 
