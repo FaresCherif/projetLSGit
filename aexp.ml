@@ -366,3 +366,41 @@ Printf.printf "%B\n" (htvalid_test q94_3 listVarHoare);;
 Printf.printf "%B\n\n" (htvalid_test (q94_4 listVarHoare) listVarHoare);;
 
 
+type cont = {eti : string ; formu : tprop};; 
+type conclu = Form of tprop
+            | Htri of hoare_triple
+;; 
+
+type goal = {context : cont list ;conclusion : conclu};;
+
+let p : tprop =Vrai;;
+let q : tprop =Faux;;
+let r : tprop =Vrai;;
+
+let p2_q2_1={context=[{eti="H";formu=Implique(Or(p,q),r)};{eti="H2";formu=p}];conclusion=Form(Or(p,q))};;
+let p2_q2_2={context=[];conclusion=Htri{pre=Eg(Var("x"),Int(-3));exp=Cond(Infeg(Var("x"),Int(0)),Affect("x",Sub(Int(0),Var("x"))),Skip);post=Eg(Var("x"),Int(3))}};;
+
+
+let rec trip_to_string(e : hoare_triple) : string =prop_to_string(e.pre)^" "^prog_to_string(e.exp)^" "^prop_to_string(e.post);;
+let print_conclusion(e : conclu) : string =
+   match e with
+      |Form(e) -> prop_to_string(e)
+      |Htri(e) -> trip_to_string(e)
+;;
+
+let rec parc_context liste=if((List.tl liste)=[]) then (List.hd liste).eti ^ " : "^prop_to_string((List.hd liste).formu) else (List.hd liste).eti ^ " : "^prop_to_string((List.hd liste).formu) ^"\n"^(parc_context (List.tl liste));;
+
+
+let print_goal(e : goal)=(if((e.context)!=[]) then (parc_context(e.context)) else "" )^"\n=====================\n"^print_conclusion(e.conclusion);;
+
+Printf.printf "%s\n\n"(print_goal(p2_q2_1));;
+Printf.printf "%s\n\n\n"(print_goal(p2_q2_2));;
+
+
+
+let fresh_ident =
+   let prefix = " H " and count = ref 0
+      in
+   function () -> ( count := ! count + 1 ;
+      prefix ^ ( string_of_int (! count ))
+   )
