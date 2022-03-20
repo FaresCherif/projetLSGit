@@ -406,6 +406,36 @@ let fresh_ident =
    )
 
 
+
+
+(** Question 4
+
+{(x = y + i - 1) ∧ (i <= 10)} c {[i + 1/i](x = y + i - 1)}
+------------------------------------------------------------------------repeat(i)
+{[1/i](x = y + i - 1)} repeat 10 do c {(x = y + i - 1) ∧ (i = 10 + 1)}
+
+*)
+
+(** Question 5
+
+{(r = 0) ∧ (n = 1)} repeat 5 do r := r + n; n := n + 1 od {(r = 15) ∧ (n = 6)}
+
+
+I = (r = i * (i-1) / 2) /\ (n = i)
+
+{(r = 0) ∧ (n = 1)}
+{I}
+repeat 5 do 
+   {(r = i * (i-1) / 2) /\ (n = i) /\ i <= 5}
+   r := r + n; 
+   {(r + n = i * (i-1) / 2) /\ (n = i) /\ i <= 5}
+   n := n + 1 
+   {(r + n + 1 = i * (i-1) / 2) /\ (n + 1 = i) /\ i <= 5}
+od
+{(r = i * (i-1) / 2) /\ (n = i) /\ i = 5 + 1}
+{(r = 15) ∧ (n = 6)}
+*)
+
 type tactic = 
 And_Intro of goal
 |Or_Intro_1 of goal
