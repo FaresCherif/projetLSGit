@@ -404,3 +404,25 @@ let fresh_ident =
    function () -> ( count := ! count + 1 ;
       prefix ^ ( string_of_int (! count ))
    )
+
+
+type tactic = 
+And_Intro of goal
+|Or_Intro_1 of goal
+|Or_Intro_2 of goal
+|Impl_Intro of goal
+|Not_Intro of goal
+|And_Elim_1 of goal * goal
+|And_Elim_2 of goal * goal
+|Or_Elim of goal * goal
+|Impl_Elim of goal * goal
+|Not_Elim of goal * goal
+|Exact of goal * goal
+|Assume
+|HSkip
+|HAssign
+|HIf
+|HRepeat of string
+|HCons
+|HSEq
+;;
