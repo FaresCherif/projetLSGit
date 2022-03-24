@@ -506,21 +506,21 @@ od
 (**question 6*)
 
 type tactic =
-  (* Partie logique des propositions *)
-  | And_Intro 
-  | Or_Intro_1
-  | Or_Intro_2
-  | Impl_Intro
-  | Not_Intro
-  | And_Elim_1 of string
-  | And_Elim_2 of string
-  | Or_Elim of string
-  | Impl_Elim of string * string
-  | Not_Elim of string * string
-  | Exact of string
+  (* Logique des propositions *)
+  | And_Intro of goal
+  | Or_Intro_1 of goal
+  | Or_Intro_2 of goal
+  | Impl_Intro of goal
+  | Not_Intro of goal
+  | And_Elim_1 of goal * goal
+  | And_Elim_2 of goal * goal
+  | Or_Elim of goal * goal
+  | Impl_Elim of goal * goal
+  | Not_Elim of goal * goal
+  | Exact of of goal * goal
   | Assume of tprop
 
-  (* Partie logique de Hoare *)
+  (* Logique de Hoare *)
   | HSkip
   | HAssign
   | HIf
@@ -529,7 +529,9 @@ type tactic =
   | HSeq of tprop
 ;;
 
+(**partie 2.2*)
 (* Question 1 *)
+
 let rec  bool2prop e =
   match e with
    Vrai -> Prop_Vrai
