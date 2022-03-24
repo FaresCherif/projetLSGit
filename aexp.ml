@@ -1,15 +1,18 @@
 (**ocamlopt -o aexp aexp.ml*)
 
+
+
+(**partie 1.1.1*)
+(**question 1 *)
 type aexp = Int of int
 	     | Var of string
              | Add of aexp * aexp
  	     | Sub of aexp * aexp
              | Mult of aexp * aexp ;;
 
-type variable = {nom : string; valeur : int};;
 
-type valuation = variable list;;
 
+(**question 2 *)
 let q2_1 = Int(2);;
 let q2_2_1 = Add(Int(2),Int(3));;
 let q2_2_2 = Sub(Int(2),Int(5));;
@@ -20,6 +23,7 @@ let q2_3_3 = Mult(Mult(Int(3),Var("x")),Var("x"));;
 let q2_3_4 = Add(Mult(Int(5),Var("x")),Mult(Int(7),Var("y"))) ;; 
 let q2_3_5 = Add(Mult(Int(6),Var("x")),Mult(Mult(Int(5),Var("y")),Var("x")));;
 
+(**question 3 - 1 *)
 let rec aexp_to_string(e : aexp) : string =
    match e with
       |Add(e1,e2) -> "( " ^ aexp_to_string(e1) ^ " + " ^ aexp_to_string(e2) ^ ")" 
@@ -29,17 +33,11 @@ let rec aexp_to_string(e : aexp) : string =
       |Var(s) -> s;;
 ;;
 
-let listVarVal = [{ nom = "x"; valeur = 5 }; { nom = "y"; valeur = 9 }];;
-
-let functionFind l va = List.find (fun (v) -> v.nom = va) l;;
-
-let fonctionVar s valua = 
-	let (v) = functionFind valua s in
-	v.valeur
-;;
 
 
 
+(**question 3 - 2 *)
+Printf.printf "aexp_to_string : \n";;
 Printf.printf "%s\n" (aexp_to_string q2_1);;
 Printf.printf "%s\n" (aexp_to_string q2_2_1);;
 Printf.printf "%s\n" (aexp_to_string q2_2_2);;
@@ -52,6 +50,21 @@ Printf.printf "%s\n" (aexp_to_string q2_3_4);;
 Printf.printf "%s\n\n" (aexp_to_string q2_3_5);;
 
 
+(**partie 1.1.1*)
+(**question 4*)
+type variable = {nom : string; valeur : int};;
+
+type valuation = variable list;;
+
+
+(**question 5*)
+
+let functionFind l va = List.find (fun (v) -> v.nom = va) l;;
+
+let fonctionVar s valua = 
+   let (v) = functionFind valua s in
+   v.valeur
+;;
 
 let rec ainterp(e,valuation) : int =
    match e with
@@ -62,6 +75,10 @@ let rec ainterp(e,valuation) : int =
       |Var(s) -> fonctionVar s valuation;;
 ;;
 
+(**question 6*)
+
+let listVarVal = [{ nom = "x"; valeur = 5 }; { nom = "y"; valeur = 9 }];;
+Printf.printf "ainterp : \n";;
 Printf.printf "%d\n" (ainterp (q2_1,listVarVal));;
 Printf.printf "%d\n" (ainterp (q2_2_1,listVarVal));;
 Printf.printf "%d\n" (ainterp (q2_2_2,listVarVal));;
@@ -72,6 +89,8 @@ Printf.printf "%d\n" (ainterp (q2_3_3,listVarVal));;
 Printf.printf "%d\n" (ainterp (q2_3_4,listVarVal));;
 Printf.printf "%d\n\n" (ainterp (q2_3_5,listVarVal));;
 
+(**partie 1.1.3*)
+(**question 7*)
 let rec asubst v expori expfin : aexp =
 match expfin with 
       |Add(e1,e2) -> Add(asubst v expori e1,asubst v expori e2 )
@@ -81,7 +100,8 @@ match expfin with
       |Var(s) -> if(s=v) then expori else Var(s) ;;
 ;;
 
-
+(**question 8*)
+Printf.printf "aexp_to_string et asubst : \n";;
 Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_1)));;
 Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_2_1)));;
 Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_2_2)));;
@@ -92,7 +112,8 @@ Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var(
 Printf.printf "%s\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_4)));;
 Printf.printf "%s\n\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Var("z"),Int(2))) q2_3_5)));;
 
-
+(**partie 1.2.1*)
+(**question 1*)
 type bexp = And of bexp*bexp
 	    | Or of bexp*bexp 
             | Neg of bexp
@@ -102,6 +123,7 @@ type bexp = And of bexp*bexp
 	    | Faux
 ;; 
 
+(**question 2*)
 let q22_1= Vrai;;
 let q22_2_1 = And(Vrai,Faux);;
 let q22_2_2 = Neg(Vrai);;
@@ -112,6 +134,7 @@ let q22_3_3 = Eg(Mult(Int(2),Var("x")),Add(Var("y"),Int(1)));;
 let q22_4_1 = Infeg(Int(5),Int(7));;
 let q22_4_2 = And(Infeg(Add(Int(8),Int(9)),Mult(Int(4),Int(5))),Infeg(Add(Int(3),Var("x")),Mult(Int(4),Var("y"))));;
 
+(**question 3*)
 let rec bexp_to_string(e : bexp) : string =
    match e with
       |And(e1,e2) -> "( " ^ bexp_to_string(e1) ^ " et " ^ bexp_to_string(e2) ^ " )"      
@@ -123,6 +146,7 @@ let rec bexp_to_string(e : bexp) : string =
       |Neg(e1) -> "non ( " ^ bexp_to_string(e1) ^ " )"
 ;;
 
+Printf.printf "bexp_to_string : \n";;
 Printf.printf "%s\n" (bexp_to_string q22_1);;
 Printf.printf "%s\n" (bexp_to_string q22_2_1);;
 Printf.printf "%s\n" (bexp_to_string q22_2_2);;
@@ -131,13 +155,12 @@ Printf.printf "%s\n" (bexp_to_string q22_3_1);;
 Printf.printf "%s\n" (bexp_to_string q22_3_2);;
 Printf.printf "%s\n" (bexp_to_string q22_3_3);;
 Printf.printf "%s\n" (bexp_to_string q22_4_1);;
-Printf.printf "%s\n" (bexp_to_string q22_4_2);;
+Printf.printf "%s\n\n" (bexp_to_string q22_4_2);;
 
 
 
-let listVarValBin = [{ nom = "x"; valeur = 7 }; { nom = "y"; valeur = 3 }];;
-
-
+(**partie 1.2.2*)
+(**question 4*)
 let rec binterp(e,valuation) : bool =
    match e with
       |And(e1,e2) -> if(binterp(e1,valuation)=true && binterp(e2,valuation)=true) then true else false
@@ -149,6 +172,10 @@ let rec binterp(e,valuation) : bool =
       |Neg(e1) -> not(binterp(e1,valuation))
 ;;
 
+(**question 5*)
+let listVarValBin = [{ nom = "x"; valeur = 7 }; { nom = "y"; valeur = 3 }];;
+
+Printf.printf "binterp : \n";;
 Printf.printf "%B\n" (binterp (q22_1,listVarValBin));;
 Printf.printf "%B\n" (binterp (q22_2_1,listVarValBin));;
 Printf.printf "%B\n" (binterp (q22_2_2,listVarValBin));;
@@ -159,7 +186,8 @@ Printf.printf "%B\n" (binterp (q22_3_3,listVarValBin));;
 Printf.printf "%B\n" (binterp (q22_4_1,listVarValBin));;
 Printf.printf "%B\n\n" (binterp (q22_4_2,listVarValBin));;
 
-
+(**partie 1.3.1*)
+(**question 1*)
 type prog = Repeat of aexp*prog
 |Skip
 |Seq of prog*prog
@@ -168,14 +196,14 @@ type prog = Repeat of aexp*prog
 ;;
 
 
-
+(**question 2*)
 let q23_1= Affect("x",Int(7));;
 let q23_2_1 = Affect("z",Add(Int(3),Int(4)));;
 let q23_2_2 = Affect("x",Mult(Int(2),Var("x")));;
 let q23_3_1 = Seq(Affect("n",Int(3)),Cond(Infeg(Var("n"),Int(4)),Affect("n",Add(Mult(Int(2),Var("n")),Int(3))),Affect("n",Add(Var("n"),Int(1)))));;
 let q23_4_1 = Repeat(Int(10),Affect("x",Add(Var("x"),Int(1))));;
 
-
+(**question 3*)
 let rec prog_to_string(e : prog) : string =
    match e with
       |Affect(e1,e2) -> e1 ^ " := " ^ aexp_to_string(e2)      
@@ -185,6 +213,7 @@ let rec prog_to_string(e : prog) : string =
       |Cond(e1,e2,e3) -> "if " ^ bexp_to_string(e1) ^ " then " ^ prog_to_string(e2) ^ " else " ^ prog_to_string(e3)
 ;;
 
+Printf.printf "prog_to_string\n";;
 Printf.printf "%s\n" (prog_to_string (q23_1));;
 Printf.printf "%s\n" (prog_to_string (q23_2_1));;
 Printf.printf "%s\n" (prog_to_string (q23_2_2));;
@@ -192,26 +221,24 @@ Printf.printf "%s\n" (prog_to_string (q23_3_1));;
 Printf.printf "%s\n" (prog_to_string (q23_4_1));;
 
 
+(**partie 1.3.1*)
 
+(**question 4*)
+let rec selfcompose f nbBoucle =
+  if (nbBoucle = 0) then function x -> x
+  else function x -> f ((selfcompose f (nbBoucle - 1)) x);;
+
+(**question 5*)
+let func x = x + 2;;
+Printf.printf "selfcompose(10) de (x-->x+2) = %d\n\n"(selfcompose func 10 (0));;
+
+
+(**question 6*)
 let rec modifier_val  liste nom_variable valeur = match liste with
     [] -> [{ nom = nom_variable; valeur = valeur }]
   | var :: reste when var.nom = nom_variable -> [{ nom = nom_variable; valeur = valeur}] @ reste
   | var :: reste -> [var] @ (modifier_val reste nom_variable valeur)
 ;;
-
-let func x = x + 2;;
-
-
-let rec selfcompose f nbBoucle =
-  if (nbBoucle = 0) then function x -> x
-  else function x -> f ((selfcompose f (nbBoucle - 1)) x);;
-
-
-Printf.printf "%d\n\n"(selfcompose func 10 (0));;
-
-
-let listVarValBin = [{ nom = "x"; valeur = 7 }; { nom = "y"; valeur = 3 }];;
-
 
 let rec exec commande valuation = match commande with
     Skip -> valuation
@@ -222,31 +249,19 @@ let rec exec commande valuation = match commande with
 ;;
 
 
-
-
-let x=exec q23_1 listVarValBin;;
-Printf.printf "%d\n" (fonctionVar "x" x);;
-(**
-Printf.printf "%s\n" (exec (q23_2_1));;
-Printf.printf "%s\n" (exec (q23_2_2));;
-Printf.printf "%s\n" (exec (q23_3_1));;
-Printf.printf "%s\n" (exec (q23_4_1));;
-*)
-
 let listRefactor = [];;
 let funRefac num= Cond(Infeg(Int(2),Int(num)),Seq(Affect("x",Int(num)),Seq(Affect("y",Sub(Var("x"),Int(1))),Repeat(Sub(Var("y"),Int(1)),Seq(Affect("x",Mult(Var("x"),Var("y"))),Affect(("y"),Sub(Var("y"),Int(1))))))),Affect("x",Int(1)));;
 let factoriel num=fonctionVar "x" (exec (funRefac(num)) listRefactor);;
-Printf.printf "factoriel 5 : %d\n" (factoriel(5));;
+Printf.printf "factoriel de 5 = %d\n" (factoriel(5));;
 
 let listFibonnacci = [];;
 let funFibbonacci num =Cond(Infeg(Int(3),Int(num)),Seq(Seq(Seq(Affect("x",Int(1)),Affect("y",Int(1))),Affect("z",Int(2))),Repeat(Int(num-3),Seq(Affect("x",Var("y")),Seq(Affect("y",Var("z")),Affect("z",Add(Var("x"),Var("y"))))))), Cond(Eg(Int(num),Int(3)),Affect("z",Int(2)),Affect("z",Int(1))));;
 let fibbonacci num=fonctionVar "z" (exec (funFibbonacci(num)) listFibonnacci);;
-Printf.printf "fibbonacci 8 : %d\n\n" (fibbonacci(8));;
+Printf.printf "8e valeur de fibbonacci = %d\n\n" (fibbonacci(8));;
 
 
-
-
-
+(**partie 1.4.1*)
+(**question 1*)
 type tprop = Vrai
 |Faux
 |And of tprop*tprop 
@@ -257,6 +272,7 @@ type tprop = Vrai
 |Infeg of aexp * aexp
 ;;
 
+(**question 2*)
 let q24_1 = Vrai;;
 let q24_2_1= And(Vrai,Faux);;
 let q24_2_2=Neg(Vrai);;
@@ -269,7 +285,7 @@ let q24_4_1=Infeg(Add(Int(3),Var("x")),Mult(Int(4),Var("y")));;
 let q24_4_2=And(Infeg(Int(5),Int(7)),Infeg(Add(Int(8),Int(9)),Mult(Int(4),Int(5))));;
 let q24_5=Implique(Eg(Var("x"),Int(1)),Infeg(Var("y"),Int(0)));;
 
-
+(**question 3*)
 let rec prop_to_string(e : tprop) : string =
    match e with
       |And(e1,e2) -> "( " ^ prop_to_string(e1) ^ " et " ^ prop_to_string(e2) ^ " )"      
@@ -282,6 +298,7 @@ let rec prop_to_string(e : tprop) : string =
       |Implique(e1,e2)->"( " ^prop_to_string(e1)^ " -> "^ prop_to_string(e2) ^ " )"
 ;;
 
+Printf.printf "prog_to_string : \n";;
 Printf.printf "%s\n" (prop_to_string q24_1);;
 Printf.printf "%s\n" (prop_to_string q24_2_1);;
 Printf.printf "%s\n" (prop_to_string q24_2_2);;
@@ -294,7 +311,8 @@ Printf.printf "%s\n" (prop_to_string q24_4_1);;
 Printf.printf "%s\n" (prop_to_string q24_4_2);;
 Printf.printf "%s\n\n" (prop_to_string q24_5);;
 
-
+(**partie 1.4.2*)
+(**question 4*)
 let rec pinterp(e,valuation) : bool =
    match e with
       |And(e1,e2) -> if(pinterp(e1,valuation)=true && pinterp(e2,valuation)=true) then true else false
@@ -307,8 +325,9 @@ let rec pinterp(e,valuation) : bool =
       |Implique(e1,e2) -> pinterp(Or(Neg(e1),e2),valuation)
 ;;
 
+(**question 5*)
 let listVarValBin = [{ nom = "x"; valeur = 7 }; { nom = "y"; valeur = 3 }];;
-
+Printf.printf "pinterp : \n";;
 Printf.printf "%B\n" (pinterp(q24_1,listVarValBin));;
 Printf.printf "%B\n" (pinterp(q24_2_1,listVarValBin));;
 Printf.printf "%B\n" (pinterp(q24_2_2,listVarValBin));;
@@ -321,6 +340,8 @@ Printf.printf "%B\n" (pinterp(q24_4_1,listVarValBin));;
 Printf.printf "%B\n" (pinterp(q24_4_2,listVarValBin));;
 Printf.printf "%B\n\n" (pinterp(q24_5,listVarValBin));;
 
+(**partie 1.4.3*)
+(**question 6*)
 
 let rec psubst v expori expfin : tprop =
 match expfin with 
@@ -334,7 +355,8 @@ match expfin with
       |Implique(e1,e2) -> Implique(psubst v expori e1,psubst v expori e2)
 ;;
 
-
+(**question 7*)
+Printf.printf "prog_to_string : \n";;
 Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_1)));;
 Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_2_1)));;
 Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_2_2)));;
@@ -348,24 +370,30 @@ Printf.printf "%s\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubs
 Printf.printf "%s\n\n" (prop_to_string ( psubst "x" (Mult(Int(3),Var("y"))) (psubst "y" (Add(Var("k"),Int(2))) q24_5)));;
 
 
-
+(**partie 1.4.4*)
+(**question 8*)
 type hoare_triple = { pre : tprop;exp : prog; post : tprop};;
 
+(**question 9*)
 let q94_1 = {pre = Eg(Var("x"),Int(2));exp=Skip;post=Eg(Var("x"),Int(2))};;
 let q94_2 = {pre=Eg(Var("x"),Int(2));exp=Affect("x",Int(3));post=Infeg(Var("x"),Int(3))};;
 let q94_3 = {pre=Vrai;exp=Cond(Infeg(Var("x"),Int(0)),Affect("r",Sub(Int(0),Var("x"))),Affect("r",Var("x")));post=Infeg(Int(0),Var("r"))};;
 let q94_4 valuation= {pre=And(Eg(Var("in"),Int(5)),Eg(Var("out"),Int(1)));exp=Seq(Affect("out",Int(factoriel(fonctionVar "in" valuation))),Affect("in",Sub(Int(factoriel(fonctionVar "out" valuation)),Int(1))));post=And(Eg(Var("in"),Int(0)),Eg(Var("out"),Int(120)))};;
 
-
+(**partie 1.4.5*)
+(**question 10*)
 let htvalid_test exp valuation : bool= if pinterp(exp.pre,valuation) then (if(pinterp(exp.post,(exec exp.exp valuation))) then true else false ) else false;;
-let listVarHoare = [{ nom = "x"; valeur = 2 };{nom="r";valeur=5};{nom="in";valeur=5};{nom="out";valeur=1}];;
 
+(** bonus : retour pour x=2 , r=5 , in=5, out=1*)
+let listVarHoare = [{ nom = "x"; valeur = 2 };{nom="r";valeur=5};{nom="in";valeur=5};{nom="out";valeur=1}];;
+Printf.printf "htvalid_test : \n";;
 Printf.printf "%B\n" (htvalid_test q94_1 listVarHoare);;
 Printf.printf "%B\n" (htvalid_test q94_2 listVarHoare);;
 Printf.printf "%B\n" (htvalid_test q94_3 listVarHoare);;
 Printf.printf "%B\n\n" (htvalid_test (q94_4 listVarHoare) listVarHoare);;
 
-
+(**partie 2.1.1*)
+(**question 1*)
 type cont = {eti : string ; formu : tprop};; 
 type conclu = Form of tprop
             | Htri of hoare_triple
@@ -373,6 +401,7 @@ type conclu = Form of tprop
 
 type goal = {context : cont list ;conclusion : conclu};;
 
+(**question 2*)
 let p : tprop =Vrai;;
 let q : tprop =Faux;;
 let r : tprop =Vrai;;
@@ -380,6 +409,7 @@ let r : tprop =Vrai;;
 let p2_q2_1={context=[{eti="H";formu=Implique(Or(p,q),r)};{eti="H2";formu=p}];conclusion=Form(Or(p,q))};;
 let p2_q2_2={context=[];conclusion=Htri{pre=Eg(Var("x"),Int(-3));exp=Cond(Infeg(Var("x"),Int(0)),Affect("x",Sub(Int(0),Var("x"))),Skip);post=Eg(Var("x"),Int(3))}};;
 
+(**question 3*)
 
 let rec trip_to_string(e : hoare_triple) : string =prop_to_string(e.pre)^" "^prog_to_string(e.exp)^" "^prop_to_string(e.post);;
 let print_conclusion(e : conclu) : string =
@@ -389,10 +419,9 @@ let print_conclusion(e : conclu) : string =
 ;;
 
 let rec parc_context liste=if((List.tl liste)=[]) then (List.hd liste).eti ^ " : "^prop_to_string((List.hd liste).formu) else (List.hd liste).eti ^ " : "^prop_to_string((List.hd liste).formu) ^"\n"^(parc_context (List.tl liste));;
-
-
 let print_goal(e : goal)=(if((e.context)!=[]) then (parc_context(e.context)) else "" )^"\n=====================\n"^print_conclusion(e.conclusion);;
 
+Printf.printf "print_goal : \n";;
 Printf.printf "%s\n\n"(print_goal(p2_q2_1));;
 Printf.printf "%s\n\n\n"(print_goal(p2_q2_2));;
 
@@ -406,7 +435,7 @@ let fresh_ident =
    )
 
 
-
+(**partie 2.1.2*)
 
 (** Question 4
 
@@ -435,6 +464,9 @@ od
 {(r = i * (i-1) / 2) /\ (n = i) /\ i = 5 + 1}
 {(r = 15) ∧ (n = 6)}
 *)
+
+(**partie 2.1.3*)
+(**question 6*)
 
 type tactic = 
 And_Intro of goal
