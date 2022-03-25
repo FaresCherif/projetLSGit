@@ -519,6 +519,7 @@ type tactic =
   | Not_Elim of string * string
   | Exact of string
   | Assume of tprop
+  | Admit
 
   (* Logique de Hoare *)
   | HSkip
