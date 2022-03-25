@@ -543,6 +543,9 @@ let rec  bool2prop e =
    |Eg (e1, e2) -> Eg (e1, e2)
    |Infeg (e1, e2) -> Infeg(e1, e2)
 ;;
+
+(* Question 2 *)
+
 let rec get_tprop_in_context context sgoal =
   match context with
     [] -> failwith("can't find " ^sgoal ^" into the context list")
@@ -723,4 +726,14 @@ let prop = Implique(
 let goal = ( [], Form prop );;
 
 
- 
+ (* Question 3 *)
+let p2_3={context=[];conclusion=Form(Implique(Implique(Or(p,q),r),And(Implique(p,q),Implique(q,r))))};;
+
+
+ (* Question 4 *)
+let p_4_1={pre=Eg(Var("x"),Int(2));exp=Skip;post=Eg(Var("x"),Int(2))};;
+let p_4_2={pre=Infeg(Add(Var("y"),Int(1)),Int(4));exp=Affect("y",Add(Var("y"),Int(4)));post=Infeg(Var("y"),Int(4))};;
+let p_4_3={pre=Eg(Var("y"),Int(5));exp=Affect("x",Add(Var("y"),Int(1)));post=Eg(Var("x"),Int(6))};;
+let p_4_4={pre=Prop_Vrai;exp=Seq(Affect("z",Var("x")),Seq(Affect("z",Add(Var("z"),Var("y"))),Affect("u",Var("z"))));post=Eg(Var("u"),Add(Var("x"),Var("y")))};;
+let p_4_5={pre=Prop_Vrai;exp=Cond(Infeg(Var("v"),Int(0)),Affect("r",Sub(Int(0),Var("v"))),Affect("r",Var("v")));post=Infeg(Int(0),Var("r"))};;
+let p_4_6={pre=Eg(Var("x"),Var("y"));exp=Repeat(Int(10),Affect("x",Add(Var("x"),Int(1))));post=Eg(Var("x"),Add(Var("y"),Int(10)))};;
