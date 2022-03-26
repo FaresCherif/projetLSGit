@@ -5,9 +5,9 @@
 (**partie 1.1.1*)
 (**question 1 *)
 type aexp = Int of int
-	     | Var of string
+        | Var of string
              | Add of aexp * aexp
- 	     | Sub of aexp * aexp
+        | Sub of aexp * aexp
              | Mult of aexp * aexp ;;
 
 
@@ -120,12 +120,12 @@ Printf.printf "%s\n\n" (aexp_to_string ( asubst "x" (Int(7)) (asubst "y" (Add(Va
 (**partie 1.2.1*)
 (**question 1*)
 type bexp = Vrai
-	    | Faux
+       | Faux
        | And of bexp*bexp
-	    | Or of bexp*bexp 
+       | Or of bexp*bexp 
        | Neg of bexp
-	    | Eg of aexp * aexp
-	    | Infeg of aexp*aexp
+       | Eg of aexp * aexp
+       | Infeg of aexp*aexp
 
 ;; 
 
@@ -507,11 +507,11 @@ od
 
 type tactic =
   (* Logique des propositions *)
-  | And_Intro
-  | Or_Intro_1 
-  | Or_Intro_2 
+  And_Intro
+  | Or_Intro_1
+  | Or_Intro_2
   | Impl_Intro
-  | Not_Intro 
+  | Not_Intro
   | And_Elim_1 of string
   | And_Elim_2 of string
   | Or_Elim of string
@@ -546,169 +546,79 @@ let rec  bool2prop e =
 
 (* Question 2 *)
 
-let rec get_tprop_in_context context sgoal =
-  match context with
-    [] -> failwith("can't find " ^sgoal ^" into the context list")
-  | (str, prop)::tail ->
-     if str = sgoal
-     then prop
-     else get_tprop_in_context tail sgoal
+let append_item lst a = lst @ [a]
+
+
+let functionFindCont l va = List.find (fun (v) -> v.eti = va) l;; (** cherche un string dans une liste de variable et retourne cette variable *)
+
+let fonctionVarCont s valua =  (** retrourne la valeur d'une variable dans une liste a partir de son nom en string *)
+   let (v) = functionFindCont valua s in
+   v.formu
 ;;
 
-let rec remove_tprop_in_context context sgoal =
-  match context with
-  | (str, prop)::tail ->
-     if str = sgoal
-     then tail
-     else (str, prop)::(remove_tprop_in_context tail sgoal)
-  | [] -> failwith("can't find " ^sgoal ^" into the context list")
+let fonctionRemplaceCont s valua remp=  (** retrourne la valeur d'une variable dans une liste a partir de son nom en string *)
+   let (v) = functionFindCont valua s in
+   v :: remp
 ;;
 
-let rec change_tprop_in_context context sgoal new_prop =
-  match context with
-    [] -> failwith("can't find " ^sgoal ^" into the context list")
-  | (str, prop)::tail ->
-     if str = sgoal
-     then (sgoal, new_prop)::tail
-     else change_tprop_in_context tail sgoal new_prop
-;;
 
-let rec apply_tactic goal tactic =
-  let (context, conclusion) = goal in (
-      match tactic with
-        
-        And_Intro -> (
-        match conclusion with
-          Form(And(p, q)) ->
-           [ (context, Form p ) ; (context, Form q ) ]
-        | _ -> failwith("can't use And_Intro")
-      )
+let rect apply_tactic g t = (* tactiques reprisent du cours et de naturalDeduction *)
+   match t with
+   And_Intro -> (match g.conclusion with Form (And (p1,p2)) ->
+      [{context = g.context; conclusion = Form (p1)};
+      {context = g.context; conclusion = Form (p2)}])
+   |   Not_Intro -> (match g.conclusion with Form (Neg (p)) ->
+      [{context = g.context @ [{eti = fresh_ident() ;formu = p}]; conclusion = Form (Prop_Faux)}
+   ])
+   |   Impl_Intro -> (match g.conclusion with Form (Implique (p1,p2)) ->
+      [{context = g.context @ [{eti = fresh_ident() ;formu = p1}]; conclusion = Form (p2)}]
+   )
 
-                   
-      | Or_Intro_1 -> (
-        match conclusion with
-          Form (Or(p, q)) -> [(context, Form p)]
-        | _ -> failwith("can't use Or_Intro_1") 
-      )
+   | Or_Intro_1 -> (match g.conclusion with Form (Or (p1,p2)) ->
+      [{context = g.context; conclusion = Form (p1)}])
 
-                    
-      | Or_Intro_2 -> (
-        match conclusion with
-          Form (Or(p, q)) -> [(context, Form q)]
-        | _ -> failwith("can't use Or_Intro_2") 
-      )
+   | Or_Intro_2 -> (match g.conclusion with Form (Or (p1,p2)) ->
+      [{context = g.context; conclusion = Form (p2)}])
+
+   | And_Elim_1(s) -> (match (fonctionVarCont s g.context) with  (And (p1,p2)) ->
+      [{context = fonctionRemplaceCont s g.context [{eti = fresh_ident() ;formu = p1}]; conclusion = g.conclusion}])
+
+   | And_Elim_2(s) -> (match (fonctionVarCont s g.context) with  (And (p1,p2)) ->
+      [{context = fonctionRemplaceCont s g.context [{eti = fresh_ident() ;formu = p2}]; conclusion = g.conclusion}])
+
+   | Or_Elim(s) -> (match (fonctionVarCont s g.context) with  (Or (p1,p2)) ->
+      [{context = fonctionRemplaceCont s g.context [{eti = fresh_ident() ;formu = p1}] ;conclusion = g.conclusion};
+      {context = fonctionRemplaceCont s g.context [{eti = fresh_ident() ;formu = p2}] ;conclusion = g.conclusion}
+   ])
+
+   | Impl_Elim(s1,s2) ->
+      let h1 = fonctionVarCont s1 g.context and h2= fonctionVarCont s2 g.context in
+    (match (h1) with Implique(h2,p)->
+      (match (h2) with p1 ->
+      [{context = g.context @ [{eti = fresh_ident() ;formu = p}]; conclusion = g.conclusion}]))
 
 
-                    
-      | Impl_Intro -> (
-        match conclusion with
-          Form (Implique(p, q)) -> [((fresh_ident (), p)::context, Form q)]
-        | _ -> failwith("can't use Impl_Intro") 
-      )
+    | Not_Elim(s1,s2) ->
+      let h1 = fonctionVarCont s1 g.context and h2= fonctionVarCont s2 g.context in
+    (match (h1) with Neg(p)->
+         (match (h2) with p ->
+      [{context = g.context @ [{eti = fresh_ident() ;formu = p}]; conclusion = g.conclusion}]))
 
-                    
-      | Not_Intro -> (
-        match conclusion with
-          Form (Neg(p)) -> [((fresh_ident (), p)::context, Form(Prop_Faux))]
-        | _ -> failwith("can't use Not_Intro") 
-      )
 
-                   
-      | And_Elim_1 sgoal -> (
-        let hypothese = get_tprop_in_context context sgoal in
-        (
-          match hypothese with
-            And(p, q) -> [((fresh_ident (), p)::context, conclusion)]
-          | _ -> failwith("can't use And_Elim_1") 
-        )
-      )
-                          
-                          
-      | And_Elim_2 sgoal -> (
-        let hypothese = get_tprop_in_context context sgoal in
-        (
-          match hypothese with
-            And(p, q) -> [((fresh_ident (), q)::context, conclusion)]
-          | _ -> failwith("can't use And_Elim_2") 
-        )
-      )
-                          
-                          
-      | Or_Elim sgoal -> (
-        let hypothese = get_tprop_in_context context sgoal in
-        (
-          match hypothese with
-            Or(p, q) -> [((fresh_ident(), p)::context, conclusion); ((fresh_ident(), q)::context, conclusion)]
-          | _ -> failwith("can't use Or_Elim") 
-        )
-      )
+   | Assume(s) ->
+      [{context = g.context @ [{eti = fresh_ident() ;formu = s}]; conclusion = g.conclusion}]
 
-                       
-      | Impl_Elim (sgoal1, sgoal2) -> (
-        let hyp1 = get_tprop_in_context context sgoal1
-        and hyp2 = get_tprop_in_context context sgoal2 in
-        (
-          match hyp1 with
-            Implique(p, q) -> if p = hyp2
-                             then [((fresh_ident(), q)::context, conclusion)]
-                             else failwith(sgoal1 ^ " don't match with " ^ sgoal2) 
-                           
-          | _ -> failwith("Error, hypothesis does not match") 
-        ) 
-      )
 
-                                    
-      | Not_Elim (sgoal1, sgoal2) ->  (
-        let hyp1 = get_tprop_in_context context sgoal1
-        and hyp2 = get_tprop_in_context context sgoal2 in
-        (
-          match hyp1, hyp2 with
-            (Neg p), q ->
-             if p = q
-             then  [((fresh_ident (), Prop_Faux)::context, conclusion)]
-             else failwith(sgoal1 ^ " don't match with " ^ sgoal2) 
-            
-          | _ -> failwith("can't use Not_Elim") 
-        )
-      )
-
-                                    
-      | Exact sgoal -> (
-        match conclusion with
-          Form (prop) -> 
-           let hyp = get_tprop_in_context context sgoal in
+   | Exact(s) -> (match (g.conclusion) with Form (prop) -> 
+           let hyp = fonctionVarCont s g.context in
            if hyp = prop
-           then  []
-           else failwith("don't match goal")
-        | _ -> failwith("can't use Exact")
-      )
-                     
-      | Assume prop -> ([((fresh_ident (), prop)::context, conclusion)])
+           then []
+          else failwith("pas de solution")
 
-      | HSkip -> 
-         (
-           failwith("can't use HSkip")
-         )
-      | HAssign -> 
-         (
-           failwith("can't use HAssign")
-         )
-      | HIf -> 
-         (
-           failwith("can't use HIf")
-         )
-      | HRepeat s -> 
-         (
-           failwith("can't use HRepeat")
-         )
-      | HSeq p -> 
-         (
-           failwith("can't use HSEq")
-         )
-                     
-      | _ -> failwith("it isn't tactic")
-    )
+        )
 ;;
+
+
 
 let p = Prop_Vrai;;
 let q = Prop_Faux;;
