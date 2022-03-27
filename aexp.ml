@@ -518,7 +518,7 @@ type tactic =
   | Impl_Elim of string * string
   | Not_Elim of string * string
   | Exact of string
-  | Assume of tprop
+  | Assume of string
   | Admit
 
   (* Logique de Hoare *)
@@ -526,8 +526,8 @@ type tactic =
   | HAssign
   | HIf
   | HRepeat of string
-  | HCons of tprop * tprop
-  | HSeq of tprop
+  | HCons of string * string
+  | HSeq of string
 ;;
 
 (**partie 2.2*)
@@ -602,12 +602,13 @@ let rect apply_tactic g t = (* tactiques reprisent du cours et de naturalDeducti
       let h1 = fonctionVarCont s1 g.context and h2= fonctionVarCont s2 g.context in
     (match (h1) with Neg(p)->
          (match (h2) with p ->
-      [{context = g.context @ [{eti = fresh_ident() ;formu = p}]; conclusion = g.conclusion}]))
+      [{context = g.context @ [{eti = fresh_ident() ;formu = Prop_Faux}]; conclusion = g.conclusion}]))
 
 
-   | Assume(s) ->
-      [{context = g.context @ [{eti = fresh_ident() ;formu = s}]; conclusion = g.conclusion}]
-
+   | Assume(s1) ->
+      [{context = g.context @ [{eti = fresh_ident() ;formu = fonctionVarCont s1 g.context}]; conclusion = g.conclusion};
+      {context = g.context;conclusion = Form(fonctionVarCont s1 g.context)}
+   ]
 
    | Exact(s) -> (match (g.conclusion) with Form (prop) -> 
            let hyp = fonctionVarCont s g.context in
